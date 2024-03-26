@@ -1,0 +1,5 @@
+telebot
+fastai
+torch
+Pillow
+pathlib
