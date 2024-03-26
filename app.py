@@ -10,7 +10,7 @@ temp = pathlib.PosixPath
 pathlib.PosixPath = pathlib.WindowsPath
 
 # Initialize the Telegram bot
-bot = telebot.TeleBot('6206650641:AAF1HQt0PdJDV-r0-3ihbkKrWwHpYg8AwRU')
+bot = telebot.TeleBot('Bot API Token')
 
 # Load the Fastai Learner model
 learn = load_learner('model.pkl')
