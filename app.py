@@ -10,10 +10,11 @@ temp = pathlib.PosixPath
 pathlib.PosixPath = pathlib.WindowsPath
 
 # Initialize the Telegram bot
-bot = telebot.TeleBot('Bot API Token')
+bot = telebot.TeleBot('6206650641:AAF1HQt0PdJDV-r0-3ihbkKrWwHpYg8AwRU')
 
 # Load the Fastai Learner model
 learn = load_learner('model.pkl')
+learn_xray = load_learner("xraydet.pkl")
 
 # Define language constants
 UZBEK = 'uz'
@@ -96,6 +97,10 @@ def process_language_selection(message):
         markup = types.ReplyKeyboardRemove(selective=False)
         bot.send_message(message.chat.id, welcome_message, reply_markup=markup)
     except:
+        # If an error occurs, default to English and instruct to use /start command to change language
+        selected_language = ENGLISH  # Default to English
+        user_data[message.chat.id] = {'language': selected_language}
+
         # If an error occurs, ask the user to select a language
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
         markup.add(
@@ -105,65 +110,75 @@ def process_language_selection(message):
         )
         msg = bot.send_message(message.chat.id, 'Tilni tanlang / Please select your language / Выберите язык', reply_markup=markup)
         bot.register_next_step_handler(msg, process_language_selection)
-
+        
+        # Instruct user to use /start command to change language
+        bot.send_message(message.chat.id, "You can change the language by using the /start command. /start tugmasi orqali tilni o'zgartira olasiz.")
 
 # Define the message handler
 @bot.message_handler(content_types=['photo'])
 def handle_image(message):
     try:
+        if message.chat.id not in user_data or 'language' not in user_data[message.chat.id]:
+            # If language is undefined, default to English
+            selected_language = ENGLISH
+        else:
+            selected_language = user_data[message.chat.id]['language']
+        
         # Get the image file ID
         file_id = message.photo[-1].file_id
-
         # Download the image
         file_info = bot.get_file(file_id)
         downloaded_file = bot.download_file(file_info.file_path)
-
         # Convert the image to PIL format
         img = Image.open(BytesIO(downloaded_file))
-
         if img is None:
             bot.reply_to(message, "Error: Unable to open the image.")
             return
-
         # Handle different image formats
         if img.mode != 'RGB':
             img = img.convert('RGB')
-
         # Resize image to match model input shape
         img = img.resize((224, 224))
-
         # Convert the image to a Fastai Image object
         img_fastai = Image.fromarray(np.array(img))
+        
+        pred_xray, _, _ = learn_xray.predict(img)        
+        if pred_xray == '1':
+            # Make a prediction
+            pred, pred_id, probs = learn.predict(img_fastai)
+            
+            CLASS_NAMES = {
+            UZBEK: {
+            'healthy': f"Sog'lom, Ehtimollik: {probs[pred_id]*100:.1f}%",
+            'sick': f'Bemorda pnevnomaniya mavjud,  Ehtimollik: {probs[pred_id]*100:.1f}%',
+            },
+            ENGLISH: {
+            'healthy': f"Healthy, Probability: {probs[pred_id]*100:.1f}%",
+            'sick': f'The patient has pneumonia, Probability: {probs[pred_id]*100:.1f}%',
+            },
+            RUSSIAN: {
+            'healthy': f"Здоровый, Bероятность: {probs[pred_id]*100:.1f}%",
+            'sick': f"У пневмония, Bероятность: {probs[pred_id]*100:.1f}%"
+            },
+            }
+            
+            
+            bot.send_chat_action(message.chat.id, 'typing')
+            class_names = CLASS_NAMES[selected_language]
+            
+            if pred == 'NORMAL':
+                class_name = class_names['healthy']
+            else:
+                class_name = class_names['sick']
 
-        # Make a prediction
-        pred, pred_id, probs = learn.predict(img_fastai)
-        
-        CLASS_NAMES = {
-        UZBEK: {
-        'healthy': f"Sog'lom, Ehtimollik: {probs[pred_id]*100:.1f}%",
-        'sick': f'Bemorda pnevnomaniya mavjud,  Ehtimollik: {probs[pred_id]*100:.1f}%',
-        },
-        ENGLISH: {
-        'healthy': f"Healthy, Probability: {probs[pred_id]*100:.1f}%",
-        'sick': f'The patient has pneumonia, Probability: {probs[pred_id]*100:.1f}%',
-        },
-        RUSSIAN: {
-        'healthy': f"Здоровый, Bероятность: {probs[pred_id]*100:.1f}%",
-        'sick': f"У пневмония, Bероятность: {probs[pred_id]*100:.1f}%"
-        },
-        }
-        
-        bot.send_chat_action(message.chat.id, 'typing')
-        selected_language = user_data[message.chat.id]['language']
-        class_names = CLASS_NAMES[selected_language]
-        
-        if pred == 'NORMAL':
-            class_name = class_names['healthy']
+            bot.reply_to(message, class_name)
         else:
-            class_name = class_names['sick']
-
-        bot.reply_to(message, class_name)
-
+            errors = {
+            ENGLISH : """Please send only lung x-ray pictures in clear format because it may affect result. Apart from this bot may not recognise picture. Try again""",
+            UZBEK : """Iltimos, faqat o'pka rentgen rasmlarini tiniq qilib yuboring, chunki bu natijaga ta'sir qilishi mumkin. Bundan tashqari, bot rasmni tanimasligi mumkin. Qayta urinib ko'ring""",
+            RUSSIAN : """Пожалуйста, присылайте только четкие рентгеновские снимки, поскольку это может повлиять на результат. Также бот может не распознать изображение. Попробуйте еще раз"""
+        }
+            bot.reply_to(message, errors[selected_language])
     except Exception as e:
         errors = {
             ENGLISH : """Please send only x-ray pictures in clear format because it may affect result. Apart from this bot may not recognise picture. Try again""",
@@ -172,6 +187,6 @@ def handle_image(message):
         }
         bot.reply_to(message, errors[selected_language])
 # Polling to keep the bot alive
-bot.polling()
+bot.polling(60)
 
 
