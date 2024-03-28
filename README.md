@@ -8,10 +8,9 @@ Contact me:
 [Github](https://github.com/mirsaidl)
 [Linkedin](https://www.linkedin.com/feed/update/urn:li:activity:7178428435713650690/)
 
-Watch Demo Videos:
+
 ![Telegram Bot](Screen_Recording_20240327_005417_Telegram.gif)
 ![Streamlit (Hugging Face)](video_2024-03-29_07-10-38.gif)
-Note: More on Linkedin Posts
 
 
 ###
