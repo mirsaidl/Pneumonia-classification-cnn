@@ -67,11 +67,3 @@ Content
 This dataset contains 5,856 validated Chest X-Ray images. Images are labeled as (disease:NORMAL/BACTERIA/VIRUS)-(randomized patient ID)-(image number of a patient). For details of the data collection and description, see the referenced paper below.
 
 According to the paper, the images (anterior-posterior) were selected from retrospective cohorts of pediatric patients of one to five years old from Guangzhou Women and Children’s Medical Center, Guangzhou.
-
-### Files
-1. streamlit_app.py - streamlit deployment code 
-2. app.py - telegram bot deployment code
-3. requirements.txt - required libraries for both apps
-4. xray_cnn_inception - model traning with inception in tensorflow
-5. xray_cnn_inception - model traning with resnet in fastai(resnet)
-6. xray_cnn - pure model training with only cnn in tensorflow
