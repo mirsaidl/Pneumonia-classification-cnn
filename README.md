@@ -1,19 +1,28 @@
 # X-ray Pneumonia Detector
 
 Deployed in 2 appllication:
-1 [Telegram Bot](https://t.me/xray_pneumonia_bot)
-2 [Streamlit (Hugging Face)](https://huggingface.co/spaces/mirsaid5455/X-ray-Pneumonia-Detector)
+1. [Telegram Bot](https://t.me/xray_pneumonia_bot)
+2. [Streamlit (Hugging Face)](https://huggingface.co/spaces/mirsaid5455/X-ray-Pneumonia-Detector)
 
 Contact me:
 [Github](https://github.com/mirsaidl)
 [Linkedin](https://www.linkedin.com/feed/update/urn:li:activity:7178428435713650690/)
 
 
-![Telegram Bot](Screen_Recording_20240327_005417_Telegram.gif)
-![Streamlit (Hugging Face)](video_2024-03-29_07-10-38.gif)
+![Telegram Bot](telegram.gif)
+![Streamlit (Hugging Face)](streamlit.gif)
 
 
-###
+
+### Files
+- **streamlit_app.py** - streamlit deployment code 
+- **app.py** - telegram bot deployment code
+- **requirements.txt** - required libraries for both apps
+- **xray_cnn_inception.ipynb** - model traning with inception in tensorflow
+- **xray_cnn_inception.ipynb** - model traning with resnet in fastai(pytorch)
+- **xray_cnn.ipynb** - pure model training with only cnn in tensorflow
+- **model_diff.ipynb** - model training for distinguish between xray and other images 
+
 ### **How I Developed this Telegram Bot and Streamlit App:**
 
 1. **Dataset from Kaggle:** Initially, I gathered a comprehensive dataset from Kaggle, which served as the foundation for training our models.
@@ -58,3 +67,11 @@ Content
 This dataset contains 5,856 validated Chest X-Ray images. Images are labeled as (disease:NORMAL/BACTERIA/VIRUS)-(randomized patient ID)-(image number of a patient). For details of the data collection and description, see the referenced paper below.
 
 According to the paper, the images (anterior-posterior) were selected from retrospective cohorts of pediatric patients of one to five years old from Guangzhou Women and Children’s Medical Center, Guangzhou.
+
+### Files
+1. streamlit_app.py - streamlit deployment code 
+2. app.py - telegram bot deployment code
+3. requirements.txt - required libraries for both apps
+4. xray_cnn_inception - model traning with inception in tensorflow
+5. xray_cnn_inception - model traning with resnet in fastai(resnet)
+6. xray_cnn - pure model training with only cnn in tensorflow
